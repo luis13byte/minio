@@ -1,0 +1,17 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: minio-hostpath
+  annotations:
+    openebs.io/cas-type: local
+#    cas.openebs.io/config: |
+#         - name: NodeAffinityLabel
+#           value: "openebs.io/node-for-hostpath"
+    cas.openebs.io/config: |
+      - name: StorageType
+        value: hostpath
+      - name: BasePath
+        value: /var/openebs/srv/minio-data
+provisioner: openebs.io/local
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
