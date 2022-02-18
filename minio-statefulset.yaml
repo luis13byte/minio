@@ -6,7 +6,7 @@ metadata:
     app: minio
 spec:
   serviceName: "minio-svc"
-  replicas: 2
+  replicas: 4
   podManagementPolicy: "Parallel"
   selector:
     matchLabels:
@@ -27,19 +27,19 @@ spec:
                 - s3-storage
       containers:
       - name: minio
-        image: minio/minio:RELEASE.2022-02-07T08-17-33Z
+        image: minio/minio:latest
         volumeMounts:
         - name: minio-data
-          mountPath: /var/miniodata
+          mountPath: /data1
         args:
         # Change this according to No. of replicas, namespace and volumes
         - server
-        - http://minio-{0...3}.minio-svc.default.svc.cluster.local/data1
+        - http://minio-{0...3}.minio-svc.minio-storage.svc.cluster.local/data1
         env:
         # MinIO access key and secret key
-        - name: MINIO_ACCESS_KEY
+        - name: MINIO_ROOT_USER
           value: "minioaccess"
-        - name: MINIO_SECRET_KEY
+        - name: MINIO_ROOT_PASSWORD
           value: "621$$d82e7*e5e34b7e"
         livenessProbe:
           failureThreshold: 3
@@ -53,6 +53,7 @@ spec:
           timeoutSeconds: 10
         ports:
         - containerPort: 9000
+          hostPort: 9000
           name: http
           protocol: TCP
   volumeClaimTemplates: # This is the specification in which you reference the StorageClass
@@ -64,4 +65,4 @@ spec:
       resources:
         requests:
           storage: 300Gi
-      storageClassName: "openebs-hostpath" # This field references the existing StorageClass
+      storageClassName: "openebs-rke-hostpath" # This field references the existing StorageClass
